@@ -1,6 +1,6 @@
 # FluentModded
 
-A modified version of the [Fluent](https://github.com/dawid-scripts/Fluent) UI library for Roblox, extended with extra themes, WindUI-inspired elements, multi-pack icon support, and quality-of-life improvements.
+A modified version of the [Fluent](https://github.com/dawid-scripts/Fluent) UI library for Roblox, extended with extra themes,multi-pack icon support, and quality-of-life improvements.
 
 ---
 
@@ -41,40 +41,6 @@ All elements are added via `Tab:AddElementType(id, config)`.
 | `AddKeybind` | Keyboard/mouse keybind |
 | `AddButton` | Clickable button |
 | `AddParagraph` | Read-only text block |
-
-### WindUI-Inspired Elements
-
-These are accessed via `Fluent.Elements.*` and accept a section as the first argument.
-
-```lua
--- Horizontal rule divider
-Fluent.Elements.AddDivider(section, {})
-
--- Vertical spacing
-Fluent.Elements.AddSpace(section, { Height = 12 })
-
--- Image (rbxassetid or HTTP url)
-Fluent.Elements.AddImage(section, {
-    Image       = "rbxassetid://123456789",
-    AspectRatio = "16:9",
-    Radius      = 8,
-})
-
--- Video (rbxassetid or HTTP url)
-Fluent.Elements.AddVideo(section, {
-    Video       = "rbxassetid://123456789",
-    AspectRatio = "16:9",
-    Looped      = true,
-    AutoPlay    = true,
-})
-
--- Group (side-by-side layout)
-local group = Fluent.Elements.AddGroup(section, { Columns = 2, Gap = 6 })
-local col1  = group:AddElement({})
-local col2  = group:AddElement({})
-```
-
----
 
 ## Custom Themes
 
@@ -144,17 +110,12 @@ SaveManager:LoadAutoloadConfig()
 ### v1.2.0
 - Fixed Orange theme rendering as Ash Gray (key mismatch bug)
 - Changed default theme to AMOLED
-- Added `AddImage` element — supports `rbxassetid://` and HTTP URLs
-- Added `AddVideo` element — supports `rbxassetid://` and HTTP URLs
-- Added `AddGroup` element — side-by-side column layout
-- Removed decorative header comments from library file
-- Updated Example.lua to 3 tabs with clean comments only
 
 ### v1.1.0
-- Added WindUI-inspired `AddDivider` and `AddSpace` elements
+- Remove some themes due to lag issues but add Custom Themes
 - Added multi-pack icon system (Solar, Gravity, Lucide, Craft, Geist, SF Symbols)
 - Added `RegisterCustomTheme` with `IconColor` and `IconSize` support
-- Added new themes: AMOLED, RGB, Neon Cyber, Neon Purple, Royal Blue, Deep Ocean,
+- keep : AMOLED, RGB, Neon Cyber, Neon Purple, Royal Blue, Deep Ocean,
   Orange, Charcoal, Pearl White, Midnight Blue, Galaxy Purple, Cosmic Violet, Cotton Candy
 
 ---
