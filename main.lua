@@ -4627,24 +4627,42 @@ local aa = {
 
         local function _openKeybindPopup(toggleObj, toggleTitle)
             _closePopup()
-            -- Acha um Parent valido (a tela do hub)
-            local hubGui = ag.GUI or ag:FindFirstChildOfClass("ScreenGui")
+            -- Acha o ScreenGui do hub (sem tocar em ag, que e ModuleScript virtual)
+            local hubGui = nil
+            -- Forma 1: Library tem GUI exposta
+            local libObj = toggleObj and toggleObj._lib
+            if libObj and libObj.GUI then hubGui = libObj.GUI end
+            -- Forma 2: procurar no CoreGui / gethui
             if not hubGui then
-                -- Fallback: procurar o ScreenGui do Fluent na CoreGui
-                local cgui = game:GetService("CoreGui")
-                for _, c in ipairs(cgui:GetChildren()) do
-                    if c:IsA("ScreenGui") and c:FindFirstChild("Holder") then hubGui = c; break end
-                end
-                if not hubGui and gethui then
-                    local hui = gethui()
-                    if hui then
-                        for _, c in ipairs(hui:GetChildren()) do
-                            if c:IsA("ScreenGui") then hubGui = c; break end
+                local function scanRoot(root)
+                    for _, c in ipairs(root:GetChildren()) do
+                        if c:IsA("ScreenGui") then
+                            -- Pega o primeiro ScreenGui que tenha um descendente Frame com Acrylic ou Holder
+                            for _, d in ipairs(c:GetDescendants()) do
+                                if d.Name == "Holder" or d.Name == "AcrylicPaint" then
+                                    return c
+                                end
+                            end
                         end
                     end
                 end
+                local ok1 = pcall(function()
+                    if gethui then hubGui = scanRoot(gethui()) end
+                end)
+                if not hubGui then
+                    pcall(function() hubGui = scanRoot(game:GetService("CoreGui")) end)
+                end
+                if not hubGui and game:GetService("Players").LocalPlayer then
+                    pcall(function()
+                        local pg = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
+                        if pg then hubGui = scanRoot(pg) end
+                    end)
+                end
             end
-            if not hubGui then return end
+            if not hubGui then
+                warn("[KeybindPopup] ScreenGui do hub nao encontrado")
+                return
+            end
 
             -- Backdrop
             local backdrop = Instance.new("Frame")
@@ -4833,7 +4851,8 @@ local aa = {
                     Value = f.Default or false,
                     Callback = f.Callback or function(h)
                         end,
-                    Type = "Toggle"
+                    Type = "Toggle",
+                    _lib = g  -- expoe Library pro popup achar GUI
                 },
                 ac(aj.Element)(f.Title, f.Description, d.Container, true)
             i.DescLabel.Size = UDim2.new(1, -54, 0, 14)
