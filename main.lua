@@ -3867,6 +3867,46 @@ local aa = {
                             L.Size = UDim2.new(1,-82,1,0)
                         end
                     end
+                    -- ===== PLAYER SELECTOR (foto do player no dropdown) =====
+                    local _isPSel = j.IsPlayerSelector == true
+                    if _isPSel then
+                        _rowH = 40
+                        -- Tenta extrair o username do label "DisplayName (@username)" ou usa o label como nome direto
+                        local _username = I:match("%(@(.-)%)$") or I
+                        local _Players = game:GetService("Players")
+                        local _plr = _Players:FindFirstChild(_username)
+                        local _userId = _plr and _plr.UserId or 0
+                        if _userId == 0 then
+                            -- Tenta achar pelo display name nos players online
+                            for _, _p in ipairs(_Players:GetPlayers()) do
+                                if _p.DisplayName == I or _p.Name == I then
+                                    _userId = _p.UserId
+                                    break
+                                end
+                            end
+                        end
+                        if _userId > 0 then
+                            local _avatarUrl = ""
+                            pcall(function()
+                                _avatarUrl = _Players:GetUserThumbnailAsync(
+                                    _userId,
+                                    Enum.ThumbnailType.HeadShot,
+                                    Enum.ThumbnailSize.Size100x100
+                                )
+                            end)
+                            local _avatar = e("ImageLabel", {
+                                Size = UDim2.fromOffset(28, 28),
+                                Position = UDim2.fromOffset(8, 6),
+                                BackgroundTransparency = 0.5,
+                                Image = _avatarUrl,
+                                ZIndex = 25,
+                                ThemeTag = {BackgroundColor3 = "Tab"},
+                            }, {e("UICorner", {CornerRadius = UDim.new(1, 0)})})
+                            table.insert(_swatches, _avatar)
+                            L.Position = UDim2.fromOffset(44, 0)
+                            L.Size = UDim2.new(1, -50, 1, 0)
+                        end
+                    end
                     local _btnChildren = {K, L, e("UICorner",{CornerRadius=UDim.new(0,6)})}
                     for _,_sw in ipairs(_swatches) do table.insert(_btnChildren,_sw) end
                     local M, N =
