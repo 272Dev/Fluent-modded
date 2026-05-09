@@ -6392,7 +6392,7 @@ local aa = {
                         ColorSequenceKeypoint.new(1, Color3.fromRGB(40, 25, 65))
                     }
                 )
-            }
+            },
             Background = "rbxassetid://136310484943077",
             BackgroundTransparency = 0.15,
         }
