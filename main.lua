@@ -334,19 +334,36 @@ local aa = {
                 }
             x.Window = E
             x:SetTheme(D.Theme)
-            -- Auto-arredonda todas as bordas no carregamento
-            task.spawn(function()
-                task.wait(0.1)
-                if x.GUI then
-                    for _, obj in pairs(x.GUI:GetDescendants()) do
-                        if obj:IsA("UICorner") then
-                            local cur = obj.CornerRadius.Offset
-                            -- Mantém os que já são bem grandes (UDim.new(1,0) etc)
-                            -- Aumenta os pequenos pra ficar mais arredondado
-                            if cur > 0 and cur < 12 then
-                                obj.CornerRadius = UDim.new(0, math.min(cur + 4, 14))
-                            end
+            -- ===== AUTO-ARREDONDA bordas (roda varias vezes pra pegar tudo novo) =====
+            local function _roundCorners()
+                if not x.GUI then return end
+                for _, obj in pairs(x.GUI:GetDescendants()) do
+                    if obj:IsA("UICorner") and not obj:GetAttribute("FluentRounded") then
+                        local cur = obj.CornerRadius.Offset
+                        if cur > 0 and cur < 12 then
+                            obj.CornerRadius = UDim.new(0, math.min(cur + 4, 14))
                         end
+                        obj:SetAttribute("FluentRounded", true)
+                    end
+                end
+            end
+            task.spawn(function()
+                -- Roda multiplas vezes pra pegar elementos criados depois (Settings auto, etc)
+                for i = 1, 8 do
+                    task.wait(0.15)
+                    _roundCorners()
+                end
+            end)
+            -- Também pega elementos adicionados depois (quando user adiciona toggles, etc)
+            x.GUI.DescendantAdded:Connect(function(obj)
+                if obj:IsA("UICorner") then
+                    task.wait()
+                    if not obj:GetAttribute("FluentRounded") then
+                        local cur = obj.CornerRadius.Offset
+                        if cur > 0 and cur < 12 then
+                            obj.CornerRadius = UDim.new(0, math.min(cur + 4, 14))
+                        end
+                        obj:SetAttribute("FluentRounded", true)
                     end
                 end
             end)
