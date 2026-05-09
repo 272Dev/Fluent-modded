@@ -334,7 +334,6 @@ local aa = {
                 }
             x.Window = E
             x:SetTheme(D.Theme)
-            -- Auto-cria aba Settings
             task.spawn(function()
                 task.wait(0.05)
                 if D.NoSettingsTab then return end
@@ -447,20 +446,18 @@ local aa = {
             if _rgbConn then _rgbConn:Disconnect(); _rgbConn = nil end
         end
         local _baseST = x.SetTheme
-        local _themeChanging = false  -- flag pra evitar loop infinito de sincronização
+        local _themeChanging = false
         function x.SetTheme(C, D)
-            if _themeChanging then return end -- bloqueia recursão
+            if _themeChanging then return end
             _themeChanging = true
             x.StopRGBMode()
             if x.Window and (table.find(x.Themes, D) or (type(D)=="string" and type(e(o.Themes)[D])=="table")) then
                 x.Theme = D
                 p.UpdateTheme()
                 if D == "RGB" then x:StartRGBMode() end
-                -- SINCRONIZA todos os dropdowns IsThemeSelector
                 pcall(function()
                     for idx, opt in pairs(x.Options) do
                         if opt and opt.Type == "Dropdown" and opt.Value ~= D then
-                            -- Se o dropdown contém esse tema na lista, atualiza
                             if opt.Values and table.find(opt.Values, D) then
                                 opt.Value = D
                                 if opt.Display then opt:Display() end
@@ -3913,7 +3910,6 @@ local aa = {
                             L.Size = UDim2.new(1,-82,1,0)
                         end
                     end
-                    -- ===== PLAYER SELECTOR (foto do player no dropdown) =====
                     local _isPSel = j.IsPlayerSelector == true
                     if _isPSel then
                         _rowH = 40
@@ -3932,11 +3928,7 @@ local aa = {
                         if _userId > 0 then
                             local _avatarUrl = ""
                             pcall(function()
-                                _avatarUrl = _Players:GetUserThumbnailAsync(
-                                    _userId,
-                                    Enum.ThumbnailType.HeadShot,
-                                    Enum.ThumbnailSize.Size100x100
-                                )
+                                _avatarUrl = _Players:GetUserThumbnailAsync(_userId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size100x100)
                             end)
                             local _avatar = e("ImageLabel", {
                                 Size = UDim2.fromOffset(28, 28),
@@ -4466,17 +4458,16 @@ local aa = {
             h.SetDesc = j.SetDesc
             local k =
                 ai(
-                "Frame",
+                "ImageLabel",
                 {
                     AnchorPoint = Vector2.new(0, 0.5),
                     Position = UDim2.new(0, -10, 0.5, 0),
                     Size = UDim2.fromOffset(20, 20),
-                    ThemeTag = {BackgroundColor3 = "Accent"},
+                    Image = "rbxassetid://3570695787",
+                    ThemeTag = {ImageColor3 = "Accent"},
                     ZIndex = 3,
-                    BorderSizePixel = 0,
                 },
                 {
-                    ai("UICorner", {CornerRadius = UDim.new(1, 0)}),
                     ai("UIStroke", {Thickness = 0, Transparency = 1, ThemeTag = {Color = "Accent"}}),
                 }
             )
@@ -4600,16 +4591,15 @@ local aa = {
             h.SetDesc = i.SetDesc
             local j, k =
                 ai(
-                    "Frame",
+                    "ImageLabel",
                     {
                         AnchorPoint = Vector2.new(0, 0.5),
                         Size = UDim2.fromOffset(14, 14),
                         Position = UDim2.new(0, 2, 0.5, 0),
-                        BackgroundTransparency = 0.5,
-                        BorderSizePixel = 0,
-                        ThemeTag = {BackgroundColor3 = "ToggleSlider"}
-                    },
-                    {ai("UICorner", {CornerRadius = UDim.new(1, 0)})}
+                        Image = "rbxassetid://3570695787",
+                        ImageTransparency = 0.5,
+                        ThemeTag = {ImageColor3 = "ToggleSlider"}
+                    }
                 ),
                 ai("UIStroke", {Transparency = 1, Thickness = 0, ThemeTag = {Color = "ToggleSlider"}})
             local l =
@@ -4633,7 +4623,7 @@ local aa = {
                 n = not (not n)
                 h.Value = n
                 ah.OverrideTag(k, {Color = h.Value and "Accent" or "ToggleSlider"})
-                ah.OverrideTag(j, {BackgroundColor3 = h.Value and "ToggleToggled" or "ToggleSlider"})
+                ah.OverrideTag(j, {ImageColor3 = h.Value and "ToggleToggled" or "ToggleSlider"})
                 af:Create(
                     j,
                     TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
