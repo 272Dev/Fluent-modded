@@ -4753,6 +4753,16 @@ local aa = {
             local _popupHidden = false
 
             -- Listener de input pra capturar a keybind
+            -- Helper: remove TODAS as binds desse toggle de forma segura
+            local function _removeBindsOf(tg)
+                local toRemove = {}
+                for k, v in pairs(_kbReg.bindings) do
+                    if v and v.toggle == tg then table.insert(toRemove, k) end
+                end
+                for _, k in ipairs(toRemove) do _kbReg.bindings[k] = nil end
+                return #toRemove > 0
+            end
+
             _kbReg.popupConn = _UIS_TG.InputBegan:Connect(function(input, gp)
                 if input.UserInputType ~= Enum.UserInputType.Keyboard then return end
                 local key = input.KeyCode
@@ -4766,25 +4776,23 @@ local aa = {
                     end
                     return
                 end
-                -- Esc sempre cancela
+                -- Esc sempre cancela (sem remover nada)
                 if key == Enum.KeyCode.Escape then
                     _closePopup()
                     return
                 end
-                -- Backspace: se tem keybind, remove. Senao, cancela
+                -- Backspace: REMOVE a keybind atual (se houver) e fecha
                 if key == Enum.KeyCode.Backspace then
-                    for k, v in pairs(_kbReg.bindings) do
-                        if v.toggle == toggleObj then _kbReg.bindings[k] = nil end
+                    local removed = _removeBindsOf(toggleObj)
+                    if removed then
+                        warn("[Keybind] removido de: " .. tostring(toggleTitle))
                     end
                     _closePopup()
                     return
                 end
-                -- Se essa key ja tava bindada em outro toggle, remove
+                -- Limpar binds anteriores desse toggle e qualquer outro toggle que ja usava essa tecla
+                _removeBindsOf(toggleObj)
                 if _kbReg.bindings[key] then _kbReg.bindings[key] = nil end
-                -- Remove keybind anterior desse toggle
-                for k, v in pairs(_kbReg.bindings) do
-                    if v.toggle == toggleObj then _kbReg.bindings[k] = nil end
-                end
                 -- Adiciona nova keybind
                 _kbReg.bindings[key] = {toggle = toggleObj, label = toggleTitle}
                 _closePopup()
