@@ -3243,7 +3243,7 @@ local aa = {
                             "ImageLabel",
                             {
                                 Size = UDim2.fromOffset(14, 14),
-                                Image = "http://www.roblox.com/asset/?id=12266946128",
+                                Image = "rbxassetid://3570695787",
                                 Parent = S,
                                 ThemeTag = {ImageColor3 = "DialogInput"}
                             }
@@ -3287,7 +3287,7 @@ local aa = {
                             "ImageLabel",
                             {
                                 Size = UDim2.fromOffset(14, 14),
-                                Image = "http://www.roblox.com/asset/?id=12266946128",
+                                Image = "rbxassetid://3570695787",
                                 Parent = ac,
                                 ThemeTag = {ImageColor3 = "DialogInput"}
                             }
@@ -4387,7 +4387,7 @@ local aa = {
                     AnchorPoint = Vector2.new(0, 0.5),
                     Position = UDim2.new(0, -10, 0.5, 0),
                     Size = UDim2.fromOffset(20, 20),
-                    Image = "http://www.roblox.com/asset/?id=12266946128",
+                    Image = "rbxassetid://3570695787",
                     ThemeTag = {ImageColor3 = "Accent"},
                     ZIndex = 3,
                 },
@@ -4518,7 +4518,7 @@ local aa = {
                         AnchorPoint = Vector2.new(0, 0.5),
                         Size = UDim2.fromOffset(14, 14),
                         Position = UDim2.new(0, 2, 0.5, 0),
-                        Image = "http://www.roblox.com/asset/?id=12266946128",
+                        Image = "rbxassetid://3570695787",
                         ImageTransparency = 0.5,
                         ThemeTag = {ImageColor3 = "ToggleSlider"}
                     }
