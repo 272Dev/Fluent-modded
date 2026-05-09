@@ -447,12 +447,29 @@ local aa = {
             if _rgbConn then _rgbConn:Disconnect(); _rgbConn = nil end
         end
         local _baseST = x.SetTheme
+        local _themeChanging = false  -- flag pra evitar loop infinito de sincronização
         function x.SetTheme(C, D)
+            if _themeChanging then return end -- bloqueia recursão
+            _themeChanging = true
             x.StopRGBMode()
-            if x.Window and table.find(x.Themes, D) then
-                x.Theme = D; p.UpdateTheme()
+            if x.Window and (table.find(x.Themes, D) or (type(D)=="string" and type(e(o.Themes)[D])=="table")) then
+                x.Theme = D
+                p.UpdateTheme()
                 if D == "RGB" then x:StartRGBMode() end
+                -- SINCRONIZA todos os dropdowns IsThemeSelector
+                pcall(function()
+                    for idx, opt in pairs(x.Options) do
+                        if opt and opt.Type == "Dropdown" and opt.Value ~= D then
+                            -- Se o dropdown contém esse tema na lista, atualiza
+                            if opt.Values and table.find(opt.Values, D) then
+                                opt.Value = D
+                                if opt.Display then opt:Display() end
+                            end
+                        end
+                    end
+                end)
             end
+            _themeChanging = false
         end
 
 
