@@ -4665,13 +4665,10 @@ local aa = {
             end
 
             -- ========================================================
-            -- Popup combina com o tema do hub via ThemeTag
-            -- Usa as keys: DialogHolder (fundo), DialogButton (botoes),
-            -- Accent (cor destaque), InElementBorder (bordas),
-            -- Text (texto principal), SubText (texto secundario)
+            -- Popup minimalista clean (so usa DialogHolder + Text + SubText)
             -- ========================================================
 
-            -- Backdrop (fundo escuro semi-transparente)
+            -- Backdrop
             local backdrop = ai("Frame", {
                 Name = "_KeybindPopupBackdrop",
                 Size = UDim2.new(1, 0, 1, 0),
@@ -4682,9 +4679,9 @@ local aa = {
                 Parent = hubGui,
             })
 
-            -- Popup principal (usa DialogHolder do tema)
+            -- Popup principal (so fundo + borda discreta)
             local popup = ai("Frame", {
-                Size = UDim2.fromOffset(280, 160),
+                Size = UDim2.fromOffset(260, 140),
                 AnchorPoint = Vector2.new(0.5, 0.5),
                 Position = UDim2.fromScale(0.5, 0.5),
                 BackgroundTransparency = 0,
@@ -4693,40 +4690,34 @@ local aa = {
                 Parent = backdrop,
                 ThemeTag = {BackgroundColor3 = "DialogHolder"},
             }, {
-                ai("UICorner", {CornerRadius = UDim.new(0, 10)}),
-                ai("UIStroke", {Thickness = 1.5, Transparency = 0.5, ThemeTag = {Color = "Accent"}}),
+                ai("UICorner", {CornerRadius = UDim.new(0, 8)}),
+                ai("UIStroke", {Thickness = 1, Transparency = 0.7, ThemeTag = {Color = "DialogButtonBorder"}}),
             })
 
-            -- Barra de accent no topo (cor do tema)
-            ai("Frame", {
-                Size = UDim2.new(1, 0, 0, 2),
-                BackgroundTransparency = 0.3,
-                BorderSizePixel = 0,
-                ZIndex = 102,
-                Parent = popup,
-                ThemeTag = {BackgroundColor3 = "Accent"},
-            })
-
-            -- Title (usa Accent pra destacar)
+            -- Title (texto normal, sem cor de destaque)
             ai("TextLabel", {
-                Size = UDim2.new(1, -16, 0, 20),
-                Position = UDim2.fromOffset(8, 10),
+                Size = UDim2.new(1, -20, 0, 20),
+                Position = UDim2.fromOffset(10, 14),
                 BackgroundTransparency = 1,
-                Text = "Keybind: " .. tostring(toggleTitle),
+                Text = tostring(toggleTitle),
                 Font = Enum.Font.GothamBold,
                 TextSize = 13,
                 TextXAlignment = Enum.TextXAlignment.Center,
                 ZIndex = 102,
                 Parent = popup,
-                ThemeTag = {TextColor3 = "Accent"},
+                ThemeTag = {TextColor3 = "Text"},
             })
 
-            -- Subtitle (usa SubText)
+            -- Current bind / instrucao (uma linha so, contextual)
+            local currentKey = nil
+            for k, v in pairs(_kbReg.bindings) do
+                if v.toggle == toggleObj then currentKey = k; break end
+            end
             ai("TextLabel", {
-                Size = UDim2.new(1, -16, 0, 16),
-                Position = UDim2.fromOffset(8, 32),
+                Size = UDim2.new(1, -20, 0, 16),
+                Position = UDim2.fromOffset(10, 38),
                 BackgroundTransparency = 1,
-                Text = "Aperte uma tecla pra bindar",
+                Text = currentKey and ("[" .. currentKey.Name .. "]  Aperte outra tecla pra trocar") or "Aperte uma tecla pra bindar",
                 Font = Enum.Font.Gotham,
                 TextSize = 11,
                 TextXAlignment = Enum.TextXAlignment.Center,
@@ -4735,64 +4726,46 @@ local aa = {
                 ThemeTag = {TextColor3 = "SubText"},
             })
 
-            -- Current bind label
-            local currentKey = nil
-            for k, v in pairs(_kbReg.bindings) do
-                if v.toggle == toggleObj then currentKey = k; break end
-            end
-            ai("TextLabel", {
-                Size = UDim2.new(1, -16, 0, 18),
-                Position = UDim2.fromOffset(8, 54),
-                BackgroundTransparency = 1,
-                Text = currentKey and ("Atual: [" .. currentKey.Name .. "]") or "Nenhuma keybind ativa",
-                Font = Enum.Font.GothamBold,
-                TextSize = 12,
-                TextXAlignment = Enum.TextXAlignment.Center,
-                ZIndex = 102,
-                Parent = popup,
-                ThemeTag = {TextColor3 = currentKey and "Text" or "SubText"},
-            })
-
-            -- Botao Remover (usa DialogButton + Accent border)
+            -- Botao Remover (so contorno, sem fundo cheio)
             local removeBtn = ai("TextButton", {
-                Size = UDim2.new(0.5, -12, 0, 30),
-                Position = UDim2.fromOffset(8, 84),
-                BackgroundTransparency = 0,
-                Text = "Remover Bind",
-                Font = Enum.Font.GothamBold,
+                Size = UDim2.new(0.5, -14, 0, 28),
+                Position = UDim2.fromOffset(10, 70),
+                BackgroundTransparency = 1,
+                Text = "Remover",
+                Font = Enum.Font.Gotham,
                 TextSize = 11,
                 AutoButtonColor = false,
                 ZIndex = 102,
                 Parent = popup,
-                ThemeTag = {BackgroundColor3 = "DialogButton", TextColor3 = "Text"},
+                ThemeTag = {TextColor3 = "Text"},
             }, {
-                ai("UICorner", {CornerRadius = UDim.new(0, 6)}),
-                ai("UIStroke", {Thickness = 1, Transparency = 0.4, ThemeTag = {Color = "DialogButtonBorder"}}),
+                ai("UICorner", {CornerRadius = UDim.new(0, 5)}),
+                ai("UIStroke", {Thickness = 1, Transparency = 0.6, ThemeTag = {Color = "DialogButtonBorder"}}),
             })
 
-            -- Botao Cancelar (mesmo estilo)
+            -- Botao Cancelar
             local cancelBtn = ai("TextButton", {
-                Size = UDim2.new(0.5, -12, 0, 30),
-                Position = UDim2.new(0.5, 4, 0, 84),
-                BackgroundTransparency = 0,
+                Size = UDim2.new(0.5, -14, 0, 28),
+                Position = UDim2.new(0.5, 4, 0, 70),
+                BackgroundTransparency = 1,
                 Text = "Cancelar",
-                Font = Enum.Font.GothamBold,
+                Font = Enum.Font.Gotham,
                 TextSize = 11,
                 AutoButtonColor = false,
                 ZIndex = 102,
                 Parent = popup,
-                ThemeTag = {BackgroundColor3 = "DialogButton", TextColor3 = "Text"},
+                ThemeTag = {TextColor3 = "Text"},
             }, {
-                ai("UICorner", {CornerRadius = UDim.new(0, 6)}),
-                ai("UIStroke", {Thickness = 1, Transparency = 0.4, ThemeTag = {Color = "DialogButtonBorder"}}),
+                ai("UICorner", {CornerRadius = UDim.new(0, 5)}),
+                ai("UIStroke", {Thickness = 1, Transparency = 0.6, ThemeTag = {Color = "DialogButtonBorder"}}),
             })
 
             -- Tip footer
             ai("TextLabel", {
-                Size = UDim2.new(1, -16, 0, 14),
-                Position = UDim2.fromOffset(8, 122),
+                Size = UDim2.new(1, -20, 0, 14),
+                Position = UDim2.fromOffset(10, 110),
                 BackgroundTransparency = 1,
-                Text = "Esc/Backspace cancela",
+                Text = "Esc / Backspace cancela",
                 Font = Enum.Font.Gotham,
                 TextSize = 10,
                 TextXAlignment = Enum.TextXAlignment.Center,
@@ -4801,23 +4774,15 @@ local aa = {
                 ThemeTag = {TextColor3 = "SubText"},
             })
 
-            -- Hover effects (usa Accent quando hover)
-            removeBtn.MouseEnter:Connect(function()
-                ah.OverrideTag(removeBtn, {BackgroundColor3 = "Accent"})
-                af:Create(removeBtn, TweenInfo.new(0.1), {BackgroundTransparency = 0.7}):Play()
-            end)
-            removeBtn.MouseLeave:Connect(function()
-                ah.OverrideTag(removeBtn, {BackgroundColor3 = "DialogButton"})
-                af:Create(removeBtn, TweenInfo.new(0.1), {BackgroundTransparency = 0}):Play()
-            end)
-            cancelBtn.MouseEnter:Connect(function()
-                ah.OverrideTag(cancelBtn, {BackgroundColor3 = "Accent"})
-                af:Create(cancelBtn, TweenInfo.new(0.1), {BackgroundTransparency = 0.7}):Play()
-            end)
-            cancelBtn.MouseLeave:Connect(function()
-                ah.OverrideTag(cancelBtn, {BackgroundColor3 = "DialogButton"})
-                af:Create(cancelBtn, TweenInfo.new(0.1), {BackgroundTransparency = 0}):Play()
-            end)
+            -- Hover sutil (so muda transparencia, sem mudar cor)
+            removeBtn.MouseEnter:Connect(function() af:Create(removeBtn, TweenInfo.new(0.1), {BackgroundTransparency = 0.85}):Play() end)
+            removeBtn.MouseLeave:Connect(function() af:Create(removeBtn, TweenInfo.new(0.1), {BackgroundTransparency = 1}):Play() end)
+            cancelBtn.MouseEnter:Connect(function() af:Create(cancelBtn, TweenInfo.new(0.1), {BackgroundTransparency = 0.85}):Play() end)
+            cancelBtn.MouseLeave:Connect(function() af:Create(cancelBtn, TweenInfo.new(0.1), {BackgroundTransparency = 1}):Play() end)
+            -- Cor do hover via tag
+            for _, btn in ipairs({removeBtn, cancelBtn}) do
+                btn.MouseEnter:Connect(function() ah.OverrideTag(btn, {BackgroundColor3 = "Hover"}) end)
+            end
 
             _kbReg.popup = backdrop
 
