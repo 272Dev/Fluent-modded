@@ -4391,9 +4391,7 @@ local aa = {
                     ThemeTag = {ImageColor3 = "Accent"},
                     ZIndex = 3,
                 },
-                {
-                    ai("UIStroke", {Thickness = 2.5, Transparency = 0.5, ThemeTag = {Color = "Accent"}}),
-                }
+                {}
             )
             local l, m, n =
                 ai(
