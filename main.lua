@@ -4609,7 +4609,7 @@ local aa = {
                         ThemeTag = {ImageColor3 = "ToggleSlider"}
                     }
                 ),
-                ai("UIStroke", {Transparency = 0.5, ThemeTag = {Color = "ToggleSlider"}})
+                ai("UIStroke", {Transparency = 1, Thickness = 0, ThemeTag = {Color = "ToggleSlider"}})
             local l =
                 ai(
                 "Frame",
