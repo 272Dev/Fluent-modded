@@ -4892,31 +4892,62 @@ local aa = {
                 i:Destroy()
                 g.Options[e] = nil
             end
-            -- ===== Click handler com deteccao de duplo clique =====
+            -- ===== Click handler com deteccao de duplo clique + botao direito + long press =====
             local _lastClickTime = 0
             local _DOUBLE_CLICK_WINDOW = 0.4
-            ah.AddSignal(
-                i.Frame.MouseButton1Click,
-                function()
-                    local now = tick()
-                    if (now - _lastClickTime) < _DOUBLE_CLICK_WINDOW then
-                        -- Duplo clique: abre popup de keybind
-                        _lastClickTime = 0
-                        c._OpenKeybindPopup(h, f.Title)
-                    else
-                        _lastClickTime = now
-                        h:SetValue(not h.Value)
+            local _holdStart = nil
+            local _holdThread = nil
+            local _holdTriggered = false
+            local _LONG_PRESS_TIME = 0.5
+
+            -- InputBegan capta TUDO: clique esquerdo, direito, touch
+            ah.AddSignal(i.Frame.InputBegan, function(input)
+                local t = input.UserInputType
+                -- Botao direito direto = abre popup
+                if t == Enum.UserInputType.MouseButton2 then
+                    c._OpenKeybindPopup(h, f.Title)
+                    _holdTriggered = true  -- evita toggle pelo Mouse1Click ao soltar
+                    return
+                end
+                -- Mouse esquerdo OU touch: comeca timer pra long press
+                if t == Enum.UserInputType.MouseButton1 or t == Enum.UserInputType.Touch then
+                    _holdStart = tick()
+                    _holdTriggered = false
+                    if _holdThread then pcall(task.cancel, _holdThread); _holdThread = nil end
+                    _holdThread = task.delay(_LONG_PRESS_TIME, function()
+                        if _holdStart then
+                            _holdTriggered = true
+                            _holdStart = nil
+                            c._OpenKeybindPopup(h, f.Title)
+                        end
+                    end)
+                end
+            end)
+
+            ah.AddSignal(i.Frame.InputEnded, function(input)
+                local t = input.UserInputType
+                if t == Enum.UserInputType.MouseButton1 or t == Enum.UserInputType.Touch then
+                    if _holdThread then pcall(task.cancel, _holdThread); _holdThread = nil end
+                    -- Se long press ja foi disparado, nao toggle
+                    if _holdTriggered then
+                        _holdStart = nil
+                        return
+                    end
+                    -- Se foi click curto, toggle ou detecta duplo clique
+                    if _holdStart then
+                        _holdStart = nil
+                        local now = tick()
+                        if (now - _lastClickTime) < _DOUBLE_CLICK_WINDOW then
+                            -- Duplo clique: abre popup de keybind
+                            _lastClickTime = 0
+                            c._OpenKeybindPopup(h, f.Title)
+                        else
+                            _lastClickTime = now
+                            h:SetValue(not h.Value)
+                        end
                     end
                 end
-            )
-
-            -- ===== Botao direito = mesmo popup de keybind =====
-            ah.AddSignal(
-                i.Frame.MouseButton2Click,
-                function()
-                    c._OpenKeybindPopup(h, f.Title)
-                end
-            )
+            end)
 
             -- Em Destroy, limpa keybind se houver
             local _origDestroy = h.Destroy
