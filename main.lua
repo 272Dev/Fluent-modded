@@ -4466,17 +4466,18 @@ local aa = {
             h.SetDesc = j.SetDesc
             local k =
                 ai(
-                "ImageLabel",
+                "Frame",
                 {
                     AnchorPoint = Vector2.new(0, 0.5),
                     Position = UDim2.new(0, -10, 0.5, 0),
                     Size = UDim2.fromOffset(20, 20),
-                    Image = "rbxassetid://3570695787",
-                    ThemeTag = {ImageColor3 = "Accent"},
+                    ThemeTag = {BackgroundColor3 = "Accent"},
                     ZIndex = 3,
+                    BorderSizePixel = 0,
                 },
                 {
-                    ai("UIStroke", {Thickness = 2.5, Transparency = 0.5, ThemeTag = {Color = "Accent"}}),
+                    ai("UICorner", {CornerRadius = UDim.new(1, 0)}),
+                    ai("UIStroke", {Thickness = 0, Transparency = 1, ThemeTag = {Color = "Accent"}}),
                 }
             )
             local l, m, n =
@@ -4599,15 +4600,16 @@ local aa = {
             h.SetDesc = i.SetDesc
             local j, k =
                 ai(
-                    "ImageLabel",
+                    "Frame",
                     {
                         AnchorPoint = Vector2.new(0, 0.5),
                         Size = UDim2.fromOffset(14, 14),
                         Position = UDim2.new(0, 2, 0.5, 0),
-                        Image = "rbxassetid://3570695787",
-                        ImageTransparency = 0.5,
-                        ThemeTag = {ImageColor3 = "ToggleSlider"}
-                    }
+                        BackgroundTransparency = 0.5,
+                        BorderSizePixel = 0,
+                        ThemeTag = {BackgroundColor3 = "ToggleSlider"}
+                    },
+                    {ai("UICorner", {CornerRadius = UDim.new(1, 0)})}
                 ),
                 ai("UIStroke", {Transparency = 1, Thickness = 0, ThemeTag = {Color = "ToggleSlider"}})
             local l =
@@ -4631,7 +4633,7 @@ local aa = {
                 n = not (not n)
                 h.Value = n
                 ah.OverrideTag(k, {Color = h.Value and "Accent" or "ToggleSlider"})
-                ah.OverrideTag(j, {ImageColor3 = h.Value and "ToggleToggled" or "ToggleSlider"})
+                ah.OverrideTag(j, {BackgroundColor3 = h.Value and "ToggleToggled" or "ToggleSlider"})
                 af:Create(
                     j,
                     TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
