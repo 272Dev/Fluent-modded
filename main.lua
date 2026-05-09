@@ -4728,7 +4728,7 @@ local aa = {
                 Size = UDim2.new(1, 0, 0, 14),
                 Position = UDim2.fromOffset(0, 50),
                 BackgroundTransparency = 1,
-                Text = currentKey and "backspace remove · esc cancela" or "esc cancela",
+                Text = (currentKey and "backspace remove · " or "") .. "esc cancela · h oculta",
                 Font = Enum.Font.Gotham,
                 TextSize = 10,
                 TextXAlignment = Enum.TextXAlignment.Center,
@@ -4749,10 +4749,23 @@ local aa = {
                 end
             end
 
+            -- Estado de visibilidade do popup (H alterna)
+            local _popupHidden = false
+
             -- Listener de input pra capturar a keybind
             _kbReg.popupConn = _UIS_TG.InputBegan:Connect(function(input, gp)
                 if input.UserInputType ~= Enum.UserInputType.Keyboard then return end
                 local key = input.KeyCode
+                -- H: oculta/mostra o popup (so esconde os textos, popup continua ativo)
+                if key == Enum.KeyCode.H then
+                    _popupHidden = not _popupHidden
+                    for _, ch in ipairs(popup:GetDescendants()) do
+                        if ch:IsA("TextLabel") then
+                            af:Create(ch, TweenInfo.new(0.15), {TextTransparency = _popupHidden and 1 or 0}):Play()
+                        end
+                    end
+                    return
+                end
                 -- Esc sempre cancela
                 if key == Enum.KeyCode.Escape then
                     _closePopup()
