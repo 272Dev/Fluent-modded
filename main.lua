@@ -350,6 +350,37 @@ local aa = {
                     end
                 end
             end)
+            -- ===== AUTO-CRIA ABA SETTINGS PADRÃO =====
+            -- A aba Settings é criada depois pra aparecer no final, mas só se o user nao desabilitou
+            task.spawn(function()
+                task.wait(0.05) -- espera o user adicionar as outras abas
+                if D.NoSettingsTab then return end
+                if x._SettingsTab then return end
+                local SettingsTab = E:AddTab({ Title = "Settings", Icon = "settings" })
+                x._SettingsTab = SettingsTab
+                -- Configura SaveManager e InterfaceManager automaticamente
+                local folderName = D.ConfigFolder or D.Title or "FluentHub"
+                pcall(function()
+                    if x.SaveManager then
+                        x.SaveManager:SetLibrary(x)
+                        x.SaveManager:SetFolder(folderName .. "/Configs")
+                        x.SaveManager:IgnoreThemeSettings()
+                    end
+                    if x.InterfaceManager then
+                        x.InterfaceManager:SetLibrary(x)
+                        x.InterfaceManager:SetFolder(folderName)
+                    end
+                    if x.InterfaceManager and x.InterfaceManager.BuildInterfaceSection then
+                        x.InterfaceManager:BuildInterfaceSection(SettingsTab)
+                    end
+                    if x.SaveManager and x.SaveManager.BuildConfigSection then
+                        x.SaveManager:BuildConfigSection(SettingsTab)
+                    end
+                    if x.SaveManager and x.SaveManager.LoadAutoloadConfig then
+                        x.SaveManager:LoadAutoloadConfig()
+                    end
+                end)
+            end)
             return E
         end
         function x.SetTheme(C, D)
