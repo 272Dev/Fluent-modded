@@ -4664,139 +4664,160 @@ local aa = {
                 return
             end
 
-            -- Backdrop
-            local backdrop = Instance.new("Frame")
-            backdrop.Name = "_KeybindPopupBackdrop"
-            backdrop.Size = UDim2.new(1, 0, 1, 0)
-            backdrop.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-            backdrop.BackgroundTransparency = 1
-            backdrop.BorderSizePixel = 0
-            backdrop.ZIndex = 100
-            backdrop.Parent = hubGui
+            -- ========================================================
+            -- Popup combina com o tema do hub via ThemeTag
+            -- Usa as keys: DialogHolder (fundo), DialogButton (botoes),
+            -- Accent (cor destaque), InElementBorder (bordas),
+            -- Text (texto principal), SubText (texto secundario)
+            -- ========================================================
 
-            -- Popup
-            local popup = Instance.new("Frame")
-            popup.Size = UDim2.fromOffset(280, 160)
-            popup.AnchorPoint = Vector2.new(0.5, 0.5)
-            popup.Position = UDim2.fromScale(0.5, 0.5)
-            popup.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-            popup.BackgroundTransparency = 0.05
-            popup.BorderSizePixel = 0
-            popup.ZIndex = 101
-            popup.Parent = backdrop
+            -- Backdrop (fundo escuro semi-transparente)
+            local backdrop = ai("Frame", {
+                Name = "_KeybindPopupBackdrop",
+                Size = UDim2.new(1, 0, 1, 0),
+                BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+                BackgroundTransparency = 1,
+                BorderSizePixel = 0,
+                ZIndex = 100,
+                Parent = hubGui,
+            })
 
-            local corner = Instance.new("UICorner")
-            corner.CornerRadius = UDim.new(0, 10)
-            corner.Parent = popup
+            -- Popup principal (usa DialogHolder do tema)
+            local popup = ai("Frame", {
+                Size = UDim2.fromOffset(280, 160),
+                AnchorPoint = Vector2.new(0.5, 0.5),
+                Position = UDim2.fromScale(0.5, 0.5),
+                BackgroundTransparency = 0,
+                BorderSizePixel = 0,
+                ZIndex = 101,
+                Parent = backdrop,
+                ThemeTag = {BackgroundColor3 = "DialogHolder"},
+            }, {
+                ai("UICorner", {CornerRadius = UDim.new(0, 10)}),
+                ai("UIStroke", {Thickness = 1.5, Transparency = 0.5, ThemeTag = {Color = "Accent"}}),
+            })
 
-            local stroke = Instance.new("UIStroke")
-            stroke.Thickness = 1.5
-            stroke.Color = Color3.fromRGB(255, 255, 255)
-            stroke.Transparency = 0.5
-            stroke.Parent = popup
+            -- Barra de accent no topo (cor do tema)
+            ai("Frame", {
+                Size = UDim2.new(1, 0, 0, 2),
+                BackgroundTransparency = 0.3,
+                BorderSizePixel = 0,
+                ZIndex = 102,
+                Parent = popup,
+                ThemeTag = {BackgroundColor3 = "Accent"},
+            })
 
-            -- Top accent bar
-            local accentBar = Instance.new("Frame")
-            accentBar.Size = UDim2.new(1, 0, 0, 2)
-            accentBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-            accentBar.BackgroundTransparency = 0.3
-            accentBar.BorderSizePixel = 0
-            accentBar.ZIndex = 102
-            accentBar.Parent = popup
+            -- Title (usa Accent pra destacar)
+            ai("TextLabel", {
+                Size = UDim2.new(1, -16, 0, 20),
+                Position = UDim2.fromOffset(8, 10),
+                BackgroundTransparency = 1,
+                Text = "Keybind: " .. tostring(toggleTitle),
+                Font = Enum.Font.GothamBold,
+                TextSize = 13,
+                TextXAlignment = Enum.TextXAlignment.Center,
+                ZIndex = 102,
+                Parent = popup,
+                ThemeTag = {TextColor3 = "Accent"},
+            })
 
-            -- Title
-            local title = Instance.new("TextLabel")
-            title.Size = UDim2.new(1, -16, 0, 20)
-            title.Position = UDim2.fromOffset(8, 10)
-            title.BackgroundTransparency = 1
-            title.Text = "Keybind: " .. tostring(toggleTitle)
-            title.TextColor3 = Color3.fromRGB(255, 255, 255)
-            title.Font = Enum.Font.GothamBold
-            title.TextSize = 13
-            title.TextXAlignment = Enum.TextXAlignment.Center
-            title.ZIndex = 102
-            title.Parent = popup
-
-            -- Subtitle
-            local sub = Instance.new("TextLabel")
-            sub.Size = UDim2.new(1, -16, 0, 16)
-            sub.Position = UDim2.fromOffset(8, 32)
-            sub.BackgroundTransparency = 1
-            sub.Text = "Aperte uma tecla pra bindar"
-            sub.TextColor3 = Color3.fromRGB(170, 170, 170)
-            sub.Font = Enum.Font.Gotham
-            sub.TextSize = 11
-            sub.TextXAlignment = Enum.TextXAlignment.Center
-            sub.ZIndex = 102
-            sub.Parent = popup
+            -- Subtitle (usa SubText)
+            ai("TextLabel", {
+                Size = UDim2.new(1, -16, 0, 16),
+                Position = UDim2.fromOffset(8, 32),
+                BackgroundTransparency = 1,
+                Text = "Aperte uma tecla pra bindar",
+                Font = Enum.Font.Gotham,
+                TextSize = 11,
+                TextXAlignment = Enum.TextXAlignment.Center,
+                ZIndex = 102,
+                Parent = popup,
+                ThemeTag = {TextColor3 = "SubText"},
+            })
 
             -- Current bind label
             local currentKey = nil
             for k, v in pairs(_kbReg.bindings) do
                 if v.toggle == toggleObj then currentKey = k; break end
             end
-            local currentLbl = Instance.new("TextLabel")
-            currentLbl.Size = UDim2.new(1, -16, 0, 18)
-            currentLbl.Position = UDim2.fromOffset(8, 54)
-            currentLbl.BackgroundTransparency = 1
-            currentLbl.Text = currentKey and ("Atual: [" .. currentKey.Name .. "]") or "Nenhuma keybind ativa"
-            currentLbl.TextColor3 = currentKey and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(120, 120, 120)
-            currentLbl.Font = Enum.Font.GothamBold
-            currentLbl.TextSize = 12
-            currentLbl.TextXAlignment = Enum.TextXAlignment.Center
-            currentLbl.ZIndex = 102
-            currentLbl.Parent = popup
+            ai("TextLabel", {
+                Size = UDim2.new(1, -16, 0, 18),
+                Position = UDim2.fromOffset(8, 54),
+                BackgroundTransparency = 1,
+                Text = currentKey and ("Atual: [" .. currentKey.Name .. "]") or "Nenhuma keybind ativa",
+                Font = Enum.Font.GothamBold,
+                TextSize = 12,
+                TextXAlignment = Enum.TextXAlignment.Center,
+                ZIndex = 102,
+                Parent = popup,
+                ThemeTag = {TextColor3 = currentKey and "Text" or "SubText"},
+            })
 
-            -- Botao Remover
-            local removeBtn = Instance.new("TextButton")
-            removeBtn.Size = UDim2.new(0.5, -12, 0, 30)
-            removeBtn.Position = UDim2.fromOffset(8, 84)
-            removeBtn.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-            removeBtn.BackgroundTransparency = 0.15
-            removeBtn.Text = "Remover Bind"
-            removeBtn.TextColor3 = Color3.fromRGB(220, 220, 220)
-            removeBtn.Font = Enum.Font.GothamBold
-            removeBtn.TextSize = 11
-            removeBtn.AutoButtonColor = false
-            removeBtn.ZIndex = 102
-            removeBtn.Parent = popup
-            local rbCorner = Instance.new("UICorner"); rbCorner.CornerRadius = UDim.new(0, 6); rbCorner.Parent = removeBtn
-            local rbStroke = Instance.new("UIStroke"); rbStroke.Thickness = 1; rbStroke.Color = Color3.fromRGB(80, 80, 80); rbStroke.Transparency = 0.4; rbStroke.Parent = removeBtn
+            -- Botao Remover (usa DialogButton + Accent border)
+            local removeBtn = ai("TextButton", {
+                Size = UDim2.new(0.5, -12, 0, 30),
+                Position = UDim2.fromOffset(8, 84),
+                BackgroundTransparency = 0,
+                Text = "Remover Bind",
+                Font = Enum.Font.GothamBold,
+                TextSize = 11,
+                AutoButtonColor = false,
+                ZIndex = 102,
+                Parent = popup,
+                ThemeTag = {BackgroundColor3 = "DialogButton", TextColor3 = "Text"},
+            }, {
+                ai("UICorner", {CornerRadius = UDim.new(0, 6)}),
+                ai("UIStroke", {Thickness = 1, Transparency = 0.4, ThemeTag = {Color = "DialogButtonBorder"}}),
+            })
 
-            -- Botao Cancelar
-            local cancelBtn = Instance.new("TextButton")
-            cancelBtn.Size = UDim2.new(0.5, -12, 0, 30)
-            cancelBtn.Position = UDim2.new(0.5, 4, 0, 84)
-            cancelBtn.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-            cancelBtn.BackgroundTransparency = 0.15
-            cancelBtn.Text = "Cancelar"
-            cancelBtn.TextColor3 = Color3.fromRGB(220, 220, 220)
-            cancelBtn.Font = Enum.Font.GothamBold
-            cancelBtn.TextSize = 11
-            cancelBtn.AutoButtonColor = false
-            cancelBtn.ZIndex = 102
-            cancelBtn.Parent = popup
-            local cbCorner = Instance.new("UICorner"); cbCorner.CornerRadius = UDim.new(0, 6); cbCorner.Parent = cancelBtn
-            local cbStroke = Instance.new("UIStroke"); cbStroke.Thickness = 1; cbStroke.Color = Color3.fromRGB(80, 80, 80); cbStroke.Transparency = 0.4; cbStroke.Parent = cancelBtn
+            -- Botao Cancelar (mesmo estilo)
+            local cancelBtn = ai("TextButton", {
+                Size = UDim2.new(0.5, -12, 0, 30),
+                Position = UDim2.new(0.5, 4, 0, 84),
+                BackgroundTransparency = 0,
+                Text = "Cancelar",
+                Font = Enum.Font.GothamBold,
+                TextSize = 11,
+                AutoButtonColor = false,
+                ZIndex = 102,
+                Parent = popup,
+                ThemeTag = {BackgroundColor3 = "DialogButton", TextColor3 = "Text"},
+            }, {
+                ai("UICorner", {CornerRadius = UDim.new(0, 6)}),
+                ai("UIStroke", {Thickness = 1, Transparency = 0.4, ThemeTag = {Color = "DialogButtonBorder"}}),
+            })
 
             -- Tip footer
-            local tip = Instance.new("TextLabel")
-            tip.Size = UDim2.new(1, -16, 0, 14)
-            tip.Position = UDim2.fromOffset(8, 122)
-            tip.BackgroundTransparency = 1
-            tip.Text = "Esc/Backspace cancela"
-            tip.TextColor3 = Color3.fromRGB(110, 110, 110)
-            tip.Font = Enum.Font.Gotham
-            tip.TextSize = 10
-            tip.TextXAlignment = Enum.TextXAlignment.Center
-            tip.ZIndex = 102
-            tip.Parent = popup
+            ai("TextLabel", {
+                Size = UDim2.new(1, -16, 0, 14),
+                Position = UDim2.fromOffset(8, 122),
+                BackgroundTransparency = 1,
+                Text = "Esc/Backspace cancela",
+                Font = Enum.Font.Gotham,
+                TextSize = 10,
+                TextXAlignment = Enum.TextXAlignment.Center,
+                ZIndex = 102,
+                Parent = popup,
+                ThemeTag = {TextColor3 = "SubText"},
+            })
 
-            -- Hover effects
-            removeBtn.MouseEnter:Connect(function() af:Create(removeBtn, TweenInfo.new(0.1), {BackgroundTransparency = 0.05}):Play() end)
-            removeBtn.MouseLeave:Connect(function() af:Create(removeBtn, TweenInfo.new(0.1), {BackgroundTransparency = 0.15}):Play() end)
-            cancelBtn.MouseEnter:Connect(function() af:Create(cancelBtn, TweenInfo.new(0.1), {BackgroundTransparency = 0.05}):Play() end)
-            cancelBtn.MouseLeave:Connect(function() af:Create(cancelBtn, TweenInfo.new(0.1), {BackgroundTransparency = 0.15}):Play() end)
+            -- Hover effects (usa Accent quando hover)
+            removeBtn.MouseEnter:Connect(function()
+                ah.OverrideTag(removeBtn, {BackgroundColor3 = "Accent"})
+                af:Create(removeBtn, TweenInfo.new(0.1), {BackgroundTransparency = 0.7}):Play()
+            end)
+            removeBtn.MouseLeave:Connect(function()
+                ah.OverrideTag(removeBtn, {BackgroundColor3 = "DialogButton"})
+                af:Create(removeBtn, TweenInfo.new(0.1), {BackgroundTransparency = 0}):Play()
+            end)
+            cancelBtn.MouseEnter:Connect(function()
+                ah.OverrideTag(cancelBtn, {BackgroundColor3 = "Accent"})
+                af:Create(cancelBtn, TweenInfo.new(0.1), {BackgroundTransparency = 0.7}):Play()
+            end)
+            cancelBtn.MouseLeave:Connect(function()
+                ah.OverrideTag(cancelBtn, {BackgroundColor3 = "DialogButton"})
+                af:Create(cancelBtn, TweenInfo.new(0.1), {BackgroundTransparency = 0}):Play()
+            end)
 
             _kbReg.popup = backdrop
 
