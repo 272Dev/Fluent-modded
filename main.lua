@@ -4720,7 +4720,7 @@ local aa = {
                 TextStrokeTransparency = 0.4,
                 ZIndex = 102,
                 Parent = popup,
-                ThemeTag = {TextColor3 = "SubText"},
+                ThemeTag = {TextColor3 = "Accent"},
             })
 
             -- Dica embaixo
