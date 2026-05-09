@@ -4665,147 +4665,104 @@ local aa = {
             end
 
             -- ========================================================
-            -- Popup minimalista clean (so usa DialogHolder + Text + SubText)
+            -- Popup ultra clean: SO TEXTO, sem caixa, sem borda, sem fundo
             -- ========================================================
 
-            -- Backdrop
+            -- Backdrop transparente (so pra capturar a tela)
             local backdrop = ai("Frame", {
                 Name = "_KeybindPopupBackdrop",
                 Size = UDim2.new(1, 0, 1, 0),
-                BackgroundColor3 = Color3.fromRGB(0, 0, 0),
                 BackgroundTransparency = 1,
                 BorderSizePixel = 0,
                 ZIndex = 100,
                 Parent = hubGui,
             })
 
-            -- Popup principal (so fundo + borda discreta)
+            -- Container invisivel (so pra agrupar os textos)
             local popup = ai("Frame", {
-                Size = UDim2.fromOffset(260, 140),
+                Size = UDim2.fromOffset(300, 80),
                 AnchorPoint = Vector2.new(0.5, 0.5),
                 Position = UDim2.fromScale(0.5, 0.5),
-                BackgroundTransparency = 0,
+                BackgroundTransparency = 1,
                 BorderSizePixel = 0,
                 ZIndex = 101,
                 Parent = backdrop,
-                ThemeTag = {BackgroundColor3 = "DialogHolder"},
-            }, {
-                ai("UICorner", {CornerRadius = UDim.new(0, 8)}),
-                ai("UIStroke", {Thickness = 1, Transparency = 0.7, ThemeTag = {Color = "DialogButtonBorder"}}),
             })
 
-            -- Title (texto normal, sem cor de destaque)
+            -- Nome do toggle
             ai("TextLabel", {
-                Size = UDim2.new(1, -20, 0, 20),
-                Position = UDim2.fromOffset(10, 14),
+                Size = UDim2.new(1, 0, 0, 20),
+                Position = UDim2.fromOffset(0, 0),
                 BackgroundTransparency = 1,
                 Text = tostring(toggleTitle),
                 Font = Enum.Font.GothamBold,
-                TextSize = 13,
+                TextSize = 14,
                 TextXAlignment = Enum.TextXAlignment.Center,
+                TextStrokeTransparency = 0.5,
                 ZIndex = 102,
                 Parent = popup,
                 ThemeTag = {TextColor3 = "Text"},
             })
 
-            -- Current bind / instrucao (uma linha so, contextual)
+            -- Linha de instrucao
             local currentKey = nil
             for k, v in pairs(_kbReg.bindings) do
                 if v.toggle == toggleObj then currentKey = k; break end
             end
             ai("TextLabel", {
-                Size = UDim2.new(1, -20, 0, 16),
-                Position = UDim2.fromOffset(10, 38),
+                Size = UDim2.new(1, 0, 0, 16),
+                Position = UDim2.fromOffset(0, 24),
                 BackgroundTransparency = 1,
-                Text = currentKey and ("[" .. currentKey.Name .. "]  Aperte outra tecla pra trocar") or "Aperte uma tecla pra bindar",
+                Text = currentKey and ("[" .. currentKey.Name .. "]  aperte outra tecla pra trocar") or "aperte uma tecla pra bindar",
                 Font = Enum.Font.Gotham,
-                TextSize = 11,
+                TextSize = 12,
                 TextXAlignment = Enum.TextXAlignment.Center,
+                TextStrokeTransparency = 0.6,
                 ZIndex = 102,
                 Parent = popup,
                 ThemeTag = {TextColor3 = "SubText"},
             })
 
-            -- Botao Remover (so contorno, sem fundo cheio)
-            local removeBtn = ai("TextButton", {
-                Size = UDim2.new(0.5, -14, 0, 28),
-                Position = UDim2.fromOffset(10, 70),
-                BackgroundTransparency = 1,
-                Text = "Remover",
-                Font = Enum.Font.Gotham,
-                TextSize = 11,
-                AutoButtonColor = false,
-                ZIndex = 102,
-                Parent = popup,
-                ThemeTag = {TextColor3 = "Text"},
-            }, {
-                ai("UICorner", {CornerRadius = UDim.new(0, 5)}),
-                ai("UIStroke", {Thickness = 1, Transparency = 0.6, ThemeTag = {Color = "DialogButtonBorder"}}),
-            })
-
-            -- Botao Cancelar
-            local cancelBtn = ai("TextButton", {
-                Size = UDim2.new(0.5, -14, 0, 28),
-                Position = UDim2.new(0.5, 4, 0, 70),
-                BackgroundTransparency = 1,
-                Text = "Cancelar",
-                Font = Enum.Font.Gotham,
-                TextSize = 11,
-                AutoButtonColor = false,
-                ZIndex = 102,
-                Parent = popup,
-                ThemeTag = {TextColor3 = "Text"},
-            }, {
-                ai("UICorner", {CornerRadius = UDim.new(0, 5)}),
-                ai("UIStroke", {Thickness = 1, Transparency = 0.6, ThemeTag = {Color = "DialogButtonBorder"}}),
-            })
-
-            -- Tip footer
+            -- Dica embaixo
             ai("TextLabel", {
-                Size = UDim2.new(1, -20, 0, 14),
-                Position = UDim2.fromOffset(10, 110),
+                Size = UDim2.new(1, 0, 0, 14),
+                Position = UDim2.fromOffset(0, 50),
                 BackgroundTransparency = 1,
-                Text = "Esc / Backspace cancela",
+                Text = currentKey and "backspace remove · esc cancela" or "esc cancela",
                 Font = Enum.Font.Gotham,
                 TextSize = 10,
                 TextXAlignment = Enum.TextXAlignment.Center,
+                TextStrokeTransparency = 0.7,
                 ZIndex = 102,
                 Parent = popup,
                 ThemeTag = {TextColor3 = "SubText"},
             })
 
-            -- Hover sutil (so muda transparencia, sem mudar cor)
-            removeBtn.MouseEnter:Connect(function() af:Create(removeBtn, TweenInfo.new(0.1), {BackgroundTransparency = 0.85}):Play() end)
-            removeBtn.MouseLeave:Connect(function() af:Create(removeBtn, TweenInfo.new(0.1), {BackgroundTransparency = 1}):Play() end)
-            cancelBtn.MouseEnter:Connect(function() af:Create(cancelBtn, TweenInfo.new(0.1), {BackgroundTransparency = 0.85}):Play() end)
-            cancelBtn.MouseLeave:Connect(function() af:Create(cancelBtn, TweenInfo.new(0.1), {BackgroundTransparency = 1}):Play() end)
-            -- Cor do hover via tag
-            for _, btn in ipairs({removeBtn, cancelBtn}) do
-                btn.MouseEnter:Connect(function() ah.OverrideTag(btn, {BackgroundColor3 = "Hover"}) end)
-            end
-
             _kbReg.popup = backdrop
 
-            -- Close handlers
-            removeBtn.MouseButton1Click:Connect(function()
-                if currentKey then
-                    _kbReg.bindings[currentKey] = nil
+            -- Animacao de entrada (so fade dos textos)
+            for _, ch in ipairs(popup:GetDescendants()) do
+                if ch:IsA("TextLabel") then
+                    local origTrans = ch.TextTransparency
+                    ch.TextTransparency = 1
+                    af:Create(ch, TweenInfo.new(0.15), {TextTransparency = origTrans}):Play()
                 end
-                _closePopup()
-            end)
-            cancelBtn.MouseButton1Click:Connect(function() _closePopup() end)
-
-            -- Animacao de entrada
-            backdrop.BackgroundTransparency = 1
-            af:Create(backdrop, TweenInfo.new(0.12), {BackgroundTransparency = 0.5}):Play()
-            popup.Size = UDim2.fromOffset(0, 0)
-            af:Create(popup, TweenInfo.new(0.18, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = UDim2.fromOffset(280, 160)}):Play()
+            end
 
             -- Listener de input pra capturar a keybind
             _kbReg.popupConn = _UIS_TG.InputBegan:Connect(function(input, gp)
                 if input.UserInputType ~= Enum.UserInputType.Keyboard then return end
                 local key = input.KeyCode
-                if key == Enum.KeyCode.Escape or key == Enum.KeyCode.Backspace then
+                -- Esc sempre cancela
+                if key == Enum.KeyCode.Escape then
+                    _closePopup()
+                    return
+                end
+                -- Backspace: se tem keybind, remove. Senao, cancela
+                if key == Enum.KeyCode.Backspace then
+                    for k, v in pairs(_kbReg.bindings) do
+                        if v.toggle == toggleObj then _kbReg.bindings[k] = nil end
+                    end
                     _closePopup()
                     return
                 end
