@@ -4689,7 +4689,7 @@ local aa = {
                 Parent = backdrop,
             })
 
-            -- Nome do toggle
+            -- Nome do toggle (cor do tema = Accent)
             ai("TextLabel", {
                 Size = UDim2.new(1, 0, 0, 32),
                 Position = UDim2.fromOffset(0, 0),
@@ -4701,7 +4701,7 @@ local aa = {
                 TextStrokeTransparency = 0.3,
                 ZIndex = 102,
                 Parent = popup,
-                ThemeTag = {TextColor3 = "Text"},
+                ThemeTag = {TextColor3 = "Accent"},
             })
 
             -- Linha de instrucao
