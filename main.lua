@@ -4680,7 +4680,7 @@ local aa = {
 
             -- Container invisivel (so pra agrupar os textos)
             local popup = ai("Frame", {
-                Size = UDim2.fromOffset(300, 80),
+                Size = UDim2.fromOffset(500, 110),
                 AnchorPoint = Vector2.new(0.5, 0.5),
                 Position = UDim2.fromScale(0.5, 0.5),
                 BackgroundTransparency = 1,
@@ -4691,14 +4691,14 @@ local aa = {
 
             -- Nome do toggle
             ai("TextLabel", {
-                Size = UDim2.new(1, 0, 0, 20),
+                Size = UDim2.new(1, 0, 0, 32),
                 Position = UDim2.fromOffset(0, 0),
                 BackgroundTransparency = 1,
                 Text = tostring(toggleTitle),
                 Font = Enum.Font.GothamBold,
-                TextSize = 14,
+                TextSize = 24,
                 TextXAlignment = Enum.TextXAlignment.Center,
-                TextStrokeTransparency = 0.5,
+                TextStrokeTransparency = 0.3,
                 ZIndex = 102,
                 Parent = popup,
                 ThemeTag = {TextColor3 = "Text"},
@@ -4710,14 +4710,14 @@ local aa = {
                 if v.toggle == toggleObj then currentKey = k; break end
             end
             ai("TextLabel", {
-                Size = UDim2.new(1, 0, 0, 16),
-                Position = UDim2.fromOffset(0, 24),
+                Size = UDim2.new(1, 0, 0, 24),
+                Position = UDim2.fromOffset(0, 38),
                 BackgroundTransparency = 1,
                 Text = currentKey and ("[" .. currentKey.Name .. "]  aperte outra tecla pra trocar") or "aperte uma tecla pra bindar",
                 Font = Enum.Font.Gotham,
-                TextSize = 12,
+                TextSize = 17,
                 TextXAlignment = Enum.TextXAlignment.Center,
-                TextStrokeTransparency = 0.6,
+                TextStrokeTransparency = 0.4,
                 ZIndex = 102,
                 Parent = popup,
                 ThemeTag = {TextColor3 = "SubText"},
@@ -4725,14 +4725,14 @@ local aa = {
 
             -- Dica embaixo
             ai("TextLabel", {
-                Size = UDim2.new(1, 0, 0, 14),
-                Position = UDim2.fromOffset(0, 50),
+                Size = UDim2.new(1, 0, 0, 20),
+                Position = UDim2.fromOffset(0, 70),
                 BackgroundTransparency = 1,
-                Text = (currentKey and "backspace remove · " or "") .. "esc cancela · h oculta",
+                Text = (currentKey and "delete remove · " or "") .. "esc cancela",
                 Font = Enum.Font.Gotham,
-                TextSize = 10,
+                TextSize = 14,
                 TextXAlignment = Enum.TextXAlignment.Center,
-                TextStrokeTransparency = 0.7,
+                TextStrokeTransparency = 0.5,
                 ZIndex = 102,
                 Parent = popup,
                 ThemeTag = {TextColor3 = "SubText"},
@@ -4749,10 +4749,6 @@ local aa = {
                 end
             end
 
-            -- Estado de visibilidade do popup (H alterna)
-            local _popupHidden = false
-
-            -- Listener de input pra capturar a keybind
             -- Helper: remove TODAS as binds desse toggle de forma segura
             local function _removeBindsOf(tg)
                 local toRemove = {}
@@ -4766,23 +4762,13 @@ local aa = {
             _kbReg.popupConn = _UIS_TG.InputBegan:Connect(function(input, gp)
                 if input.UserInputType ~= Enum.UserInputType.Keyboard then return end
                 local key = input.KeyCode
-                -- H: oculta/mostra o popup (so esconde os textos, popup continua ativo)
-                if key == Enum.KeyCode.H then
-                    _popupHidden = not _popupHidden
-                    for _, ch in ipairs(popup:GetDescendants()) do
-                        if ch:IsA("TextLabel") then
-                            af:Create(ch, TweenInfo.new(0.15), {TextTransparency = _popupHidden and 1 or 0}):Play()
-                        end
-                    end
-                    return
-                end
-                -- Esc sempre cancela (sem remover nada)
+                -- Esc cancela (sem remover nada)
                 if key == Enum.KeyCode.Escape then
                     _closePopup()
                     return
                 end
-                -- Backspace: REMOVE a keybind atual (se houver) e fecha
-                if key == Enum.KeyCode.Backspace then
+                -- Delete: REMOVE a keybind atual e fecha
+                if key == Enum.KeyCode.Delete then
                     local removed = _removeBindsOf(toggleObj)
                     if removed then
                         warn("[Keybind] removido de: " .. tostring(toggleTitle))
