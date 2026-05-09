@@ -334,48 +334,13 @@ local aa = {
                 }
             x.Window = E
             x:SetTheme(D.Theme)
-            -- ===== AUTO-ARREDONDA bordas (roda varias vezes pra pegar tudo novo) =====
-            local function _roundCorners()
-                if not x.GUI then return end
-                for _, obj in pairs(x.GUI:GetDescendants()) do
-                    if obj:IsA("UICorner") and not obj:GetAttribute("FluentRounded") then
-                        local cur = obj.CornerRadius.Offset
-                        if cur > 0 and cur < 12 then
-                            obj.CornerRadius = UDim.new(0, math.min(cur + 4, 14))
-                        end
-                        obj:SetAttribute("FluentRounded", true)
-                    end
-                end
-            end
+            -- Auto-cria aba Settings
             task.spawn(function()
-                -- Roda multiplas vezes pra pegar elementos criados depois (Settings auto, etc)
-                for i = 1, 8 do
-                    task.wait(0.15)
-                    _roundCorners()
-                end
-            end)
-            -- Também pega elementos adicionados depois (quando user adiciona toggles, etc)
-            x.GUI.DescendantAdded:Connect(function(obj)
-                if obj:IsA("UICorner") then
-                    task.wait()
-                    if not obj:GetAttribute("FluentRounded") then
-                        local cur = obj.CornerRadius.Offset
-                        if cur > 0 and cur < 12 then
-                            obj.CornerRadius = UDim.new(0, math.min(cur + 4, 14))
-                        end
-                        obj:SetAttribute("FluentRounded", true)
-                    end
-                end
-            end)
-            -- ===== AUTO-CRIA ABA SETTINGS PADRÃO =====
-            -- A aba Settings é criada depois pra aparecer no final, mas só se o user nao desabilitou
-            task.spawn(function()
-                task.wait(0.05) -- espera o user adicionar as outras abas
+                task.wait(0.05)
                 if D.NoSettingsTab then return end
                 if x._SettingsTab then return end
                 local SettingsTab = E:AddTab({ Title = "Settings", Icon = "settings" })
                 x._SettingsTab = SettingsTab
-                -- Configura SaveManager e InterfaceManager automaticamente
                 local folderName = D.ConfigFolder or D.Title or "FluentHub"
                 pcall(function()
                     if x.SaveManager then
@@ -1061,7 +1026,7 @@ local aa = {
                             ImageTransparency = 0.7
                         }
                     ),
-                    j("UICorner", {CornerRadius = UDim.new(0, 10)}),
+                    j("UICorner", {CornerRadius = UDim.new(0, 14)}),
                     j(
                         "Frame",
                         {
@@ -1070,7 +1035,7 @@ local aa = {
                             Name = "Background",
                             ThemeTag = {BackgroundColor3 = "AcrylicMain"}
                         },
-                        {j("UICorner", {CornerRadius = UDim.new(0, 10)})}
+                        {j("UICorner", {CornerRadius = UDim.new(0, 14)})}
                     ),
                     j(
                         "Frame",
@@ -1080,7 +1045,7 @@ local aa = {
                             Size = UDim2.fromScale(1, 1)
                         },
                         {
-                            j("UICorner", {CornerRadius = UDim.new(0, 10)}),
+                            j("UICorner", {CornerRadius = UDim.new(0, 14)}),
                             j("UIGradient", {Rotation = 90, ThemeTag = {Color = "AcrylicGradient"}})
                         }
                     ),
@@ -1094,7 +1059,7 @@ local aa = {
                             Size = UDim2.fromScale(1, 1),
                             BackgroundTransparency = 1
                         },
-                        {j("UICorner", {CornerRadius = UDim.new(0, 10)})}
+                        {j("UICorner", {CornerRadius = UDim.new(0, 14)})}
                     ),
                     j(
                         "ImageLabel",
@@ -1107,13 +1072,13 @@ local aa = {
                             BackgroundTransparency = 1,
                             ThemeTag = {ImageTransparency = "AcrylicNoise"}
                         },
-                        {j("UICorner", {CornerRadius = UDim.new(0, 10)})}
+                        {j("UICorner", {CornerRadius = UDim.new(0, 14)})}
                     ),
                     j(
                         "Frame",
                         {BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), ZIndex = 2},
                         {
-                            j("UICorner", {CornerRadius = UDim.new(0, 10)}),
+                            j("UICorner", {CornerRadius = UDim.new(0, 14)}),
                             j("UIStroke", {Transparency = 0.5, Thickness = 1, ThemeTag = {Color = "AcrylicBorder"}})
                         }
                     )
@@ -1207,14 +1172,14 @@ local aa = {
                 k(
                 "Frame",
                 {Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, ThemeTag = {BackgroundColor3 = "Hover"}},
-                {k("UICorner", {CornerRadius = UDim.new(0, 4)})}
+                {k("UICorner", {CornerRadius = UDim.new(0, 8)})}
             )
             p.Frame =
                 k(
                 "TextButton",
                 {Size = UDim2.new(0, 0, 0, 32), Parent = n, ThemeTag = {BackgroundColor3 = "DialogButton"}},
                 {
-                    k("UICorner", {CornerRadius = UDim.new(0, 4)}),
+                    k("UICorner", {CornerRadius = UDim.new(0, 8)}),
                     k(
                         "UIStroke",
                         {
@@ -1280,7 +1245,7 @@ local aa = {
                     BackgroundTransparency = 1,
                     Parent = q.Window.Root
                 },
-                {p("UICorner", {CornerRadius = UDim.new(0, 8)})}
+                {p("UICorner", {CornerRadius = UDim.new(0, 12)})}
             )
             local t, u = m.SpringMotor(1, s.TintFrame, "BackgroundTransparency", true)
             s.ButtonHolder =
@@ -1351,7 +1316,7 @@ local aa = {
                     ThemeTag = {BackgroundColor3 = "Dialog"}
                 },
                 {
-                    p("UICorner", {CornerRadius = UDim.new(0, 8)}),
+                    p("UICorner", {CornerRadius = UDim.new(0, 12)}),
                     p("UIStroke", {Transparency = 0.5, ThemeTag = {Color = "DialogBorder"}}),
                     s.Scale,
                     s.Title,
@@ -1493,7 +1458,7 @@ local aa = {
                     LayoutOrder = 7,
                     ThemeTag = {BackgroundColor3 = "Element", BackgroundTransparency = "ElementTransparency"}
                 },
-                {k("UICorner", {CornerRadius = UDim.new(0, 4)}), q.Border, q.LabelHolder}
+                {k("UICorner", {CornerRadius = UDim.new(0, 8)}), q.Border, q.LabelHolder}
             )
             function q.SetTitle(r, s)
                 q.TitleLabel.Text = s
@@ -1838,7 +1803,7 @@ local aa = {
                     ThemeTag = {BackgroundColor3 = "Tab"}
                 },
                 {
-                    k("UICorner", {CornerRadius = UDim.new(0, 6)}),
+                    k("UICorner", {CornerRadius = UDim.new(0, 10)}),
                     k(
                         "TextLabel",
                         {
@@ -2043,7 +2008,7 @@ local aa = {
                     ThemeTag = {BackgroundColor3 = n and "Input" or "DialogInput"}
                 },
                 {
-                    l("UICorner", {CornerRadius = UDim.new(0, 4)}),
+                    l("UICorner", {CornerRadius = UDim.new(0, 8)}),
                     l(
                         "UIStroke",
                         {
@@ -2129,7 +2094,7 @@ local aa = {
                             ThemeTag = {BackgroundColor3 = "Text"}
                         },
                         {
-                            l("UICorner", {CornerRadius = UDim.new(0, 7)}),
+                            l("UICorner", {CornerRadius = UDim.new(0, 11)}),
                             l(
                                 "ImageLabel",
                                 {
@@ -2322,7 +2287,7 @@ local aa = {
                         AnchorPoint = Vector2.new(0, 0.5),
                         ThemeTag = {BackgroundColor3 = "Accent"}
                     },
-                    {s("UICorner", {CornerRadius = UDim.new(0, 2)})}
+                    {s("UICorner", {CornerRadius = UDim.new(0, 6)})}
                 ),
                 s(
                     "Frame",
@@ -3155,7 +3120,7 @@ local aa = {
                 s(
                 "Frame",
                 {Size = UDim2.fromScale(1, 1), BackgroundColor3 = z.Value, Parent = A.Frame},
-                {s("UICorner", {CornerRadius = UDim.new(0, 4)})}
+                {s("UICorner", {CornerRadius = UDim.new(0, 8)})}
             )
             local aa, ab =
                 s(
@@ -3170,7 +3135,7 @@ local aa = {
                         ScaleType = Enum.ScaleType.Tile,
                         TileSize = UDim2.fromOffset(40, 40)
                     },
-                    {s("UICorner", {CornerRadius = UDim.new(0, 4)}), B}
+                    {s("UICorner", {CornerRadius = UDim.new(0, 8)}), B}
                 ),
                 function()
                     local C = e(t.Dialog):Create()
@@ -3234,7 +3199,7 @@ local aa = {
                                 BackgroundTransparency = 0,
                                 Parent = C.Root
                             },
-                            {s("UICorner", {CornerRadius = UDim.new(0, 4)}), K}
+                            {s("UICorner", {CornerRadius = UDim.new(0, 8)}), K}
                         ),
                         s(
                             "Frame",
@@ -3243,7 +3208,7 @@ local aa = {
                                 Size = UDim2.fromScale(1, 1),
                                 BackgroundTransparency = z.Transparency
                             },
-                            {s("UICorner", {CornerRadius = UDim.new(0, 4)})}
+                            {s("UICorner", {CornerRadius = UDim.new(0, 8)})}
                         )
                     local N, O =
                         s(
@@ -3259,7 +3224,7 @@ local aa = {
                                 Parent = C.Root
                             },
                             {
-                                s("UICorner", {CornerRadius = UDim.new(0, 4)}),
+                                s("UICorner", {CornerRadius = UDim.new(0, 8)}),
                                 s("UIStroke", {Thickness = 2, Transparency = 0.75}),
                                 M
                             }
@@ -3267,7 +3232,7 @@ local aa = {
                         s(
                             "Frame",
                             {BackgroundColor3 = z.Value, Size = UDim2.fromScale(1, 1), BackgroundTransparency = 0},
-                            {s("UICorner", {CornerRadius = UDim.new(0, 4)})}
+                            {s("UICorner", {CornerRadius = UDim.new(0, 8)})}
                         )
                     local P, Q =
                         s(
@@ -3283,7 +3248,7 @@ local aa = {
                                 Parent = C.Root
                             },
                             {
-                                s("UICorner", {CornerRadius = UDim.new(0, 4)}),
+                                s("UICorner", {CornerRadius = UDim.new(0, 8)}),
                                 s("UIStroke", {Thickness = 2, Transparency = 0.75}),
                                 O
                             }
@@ -3672,7 +3637,7 @@ local aa = {
                         ThemeTag = {BackgroundColor3 = "DropdownFrame"}
                     },
                     {
-                        e("UICorner", {CornerRadius = UDim.new(0, 5)}),
+                        e("UICorner", {CornerRadius = UDim.new(0, 9)}),
                         e(
                             "UIStroke",
                             {
@@ -3697,7 +3662,7 @@ local aa = {
                 ThemeTag = {TextColor3 = "Text", BackgroundColor3 = "Input", PlaceholderColor3 = "SubText"},
             }) or nil
             if _ddSearchBox then
-                e("UICorner", {CornerRadius = UDim.new(0, 4)}).Parent = _ddSearchBox
+                e("UICorner", {CornerRadius = UDim.new(0, 8)}).Parent = _ddSearchBox
             end
             local _scrollOffY = _ddShowSearch and 33 or 5
             local _scrollH    = _ddShowSearch and -38 or -10
@@ -3719,7 +3684,7 @@ local aa = {
                 },
                 {s}
             )
-            local _uChildren = {t, e("UICorner", {CornerRadius = UDim.new(0, 7)}),
+            local _uChildren = {t, e("UICorner", {CornerRadius = UDim.new(0, 11)}),
                 e("UIStroke", {ApplyStrokeMode = Enum.ApplyStrokeMode.Border, ThemeTag = {Color = "DropdownBorder"}}),
                 e("ImageLabel", {
                     BackgroundTransparency = 1,
@@ -3871,7 +3836,7 @@ local aa = {
                                 AnchorPoint = Vector2.new(0, 0.5),
                                 ThemeTag = {BackgroundColor3 = "Accent"}
                             },
-                            {e("UICorner", {CornerRadius = UDim.new(0, 2)})}
+                            {e("UICorner", {CornerRadius = UDim.new(0, 6)})}
                         ),
                         e(
                             "TextLabel",
@@ -3935,13 +3900,11 @@ local aa = {
                     local _isPSel = j.IsPlayerSelector == true
                     if _isPSel then
                         _rowH = 40
-                        -- Tenta extrair o username do label "DisplayName (@username)" ou usa o label como nome direto
                         local _username = I:match("%(@(.-)%)$") or I
                         local _Players = game:GetService("Players")
                         local _plr = _Players:FindFirstChild(_username)
                         local _userId = _plr and _plr.UserId or 0
                         if _userId == 0 then
-                            -- Tenta achar pelo display name nos players online
                             for _, _p in ipairs(_Players:GetPlayers()) do
                                 if _p.DisplayName == I or _p.Name == I then
                                     _userId = _p.UserId
@@ -4304,7 +4267,7 @@ local aa = {
                     ThemeTag = {BackgroundColor3 = "Keybind"}
                 },
                 {
-                    ai("UICorner", {CornerRadius = UDim.new(0, 5)}),
+                    ai("UICorner", {CornerRadius = UDim.new(0, 9)}),
                     ai("UIPadding", {PaddingLeft = UDim.new(0, 7), PaddingRight = UDim.new(0, 8)}),
                     ai("UIListLayout", {
                         FillDirection = Enum.FillDirection.Horizontal,
@@ -4495,7 +4458,9 @@ local aa = {
                     ThemeTag = {ImageColor3 = "Accent"},
                     ZIndex = 3,
                 },
-                {}
+                {
+                    ai("UIStroke", {Thickness = 2.5, Transparency = 0.5, ThemeTag = {Color = "Accent"}}),
+                }
             )
             local l, m, n =
                 ai(
@@ -4639,7 +4604,7 @@ local aa = {
                     BackgroundTransparency = 1,
                     ThemeTag = {BackgroundColor3 = "Accent"}
                 },
-                {ai("UICorner", {CornerRadius = UDim.new(0, 9)}), k, j}
+                {ai("UICorner", {CornerRadius = UDim.new(0, 13)}), k, j}
             )
             function h.OnChanged(m, n)
                 h.Changed = n
