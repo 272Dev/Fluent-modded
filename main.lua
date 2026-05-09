@@ -321,7 +321,6 @@ local aa = {
             end
             x.MinimizeKey = D.MinimizeKey
             x.UseAcrylic = D.Acrylic
-            x.BorderStyle = D.BorderStyle or "Round"
             if D.Acrylic then
                 r.init()
             end
@@ -335,35 +334,23 @@ local aa = {
                 }
             x.Window = E
             x:SetTheme(D.Theme)
-            x:ApplyBorderStyle(x.BorderStyle)
-            return E
-        end
-        function x.ApplyBorderStyle(C, D)
-            -- D = "Round" ou "Square"
-            local style = D or x.BorderStyle or "Round"
-            x.BorderStyle = style
-            if not x.GUI then return end
-            local isSquare = (style == "Square")
-            for _, obj in pairs(x.GUI:GetDescendants()) do
-                if obj:IsA("UICorner") then
-                    -- Pega o raio original (salvo em atributo na primeira vez)
-                    local original = obj:GetAttribute("OriginalRadius")
-                    if not original then
-                        original = obj.CornerRadius.Offset
-                        obj:SetAttribute("OriginalRadius", original)
-                    end
-                    if isSquare then
-                        obj.CornerRadius = UDim.new(0, 0)
-                    else
-                        -- Modo Round: aumenta um pouco os pequenos pra ficar mais arredondado
-                        local newRadius = original
-                        if original > 0 and original < 12 then
-                            newRadius = math.min(original + 4, 14)
+            -- Auto-arredonda todas as bordas no carregamento
+            task.spawn(function()
+                task.wait(0.1)
+                if x.GUI then
+                    for _, obj in pairs(x.GUI:GetDescendants()) do
+                        if obj:IsA("UICorner") then
+                            local cur = obj.CornerRadius.Offset
+                            -- Mantém os que já são bem grandes (UDim.new(1,0) etc)
+                            -- Aumenta os pequenos pra ficar mais arredondado
+                            if cur > 0 and cur < 12 then
+                                obj.CornerRadius = UDim.new(0, math.min(cur + 4, 14))
+                            end
                         end
-                        obj.CornerRadius = UDim.new(0, newRadius)
                     end
                 end
-            end
+            end)
+            return E
         end
         function x.SetTheme(C, D)
             if x.Window and (table.find(x.Themes, D) or (type(D)=="string" and type(e(o.Themes)[D])=="table")) then
