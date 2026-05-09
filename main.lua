@@ -4575,6 +4575,256 @@ local aa = {
         local ai, aj, c = ah.New, ag.Components, {}
         c.__index = c
         c.__type = "Toggle"
+
+        -- ================================================================
+        -- SISTEMA DE KEYBIND POR TOGGLE (custom feature 272Dev)
+        -- Registry global compartilhado entre todos os toggles
+        -- ================================================================
+        local _UIS_TG = game:GetService("UserInputService")
+        if not _G.__FluentToggleKeybinds then
+            _G.__FluentToggleKeybinds = {
+                bindings = {},   -- [keyCode] = {toggle, label}
+                popup    = nil,  -- popup ativo
+                popupConn = nil, -- conexao do popup
+            }
+            -- Listener global unico
+            _UIS_TG.InputBegan:Connect(function(input, gp)
+                if gp then return end
+                if input.UserInputType ~= Enum.UserInputType.Keyboard then return end
+                -- Se tem popup aberto, ignora (popup tem seu proprio handler)
+                if _G.__FluentToggleKeybinds.popup then return end
+                local bind = _G.__FluentToggleKeybinds.bindings[input.KeyCode]
+                if bind and bind.toggle then
+                    pcall(function() bind.toggle:SetValue(not bind.toggle.Value) end)
+                end
+            end)
+        end
+
+        local _kbReg = _G.__FluentToggleKeybinds
+
+        local function _closePopup()
+            if _kbReg.popupConn then pcall(function() _kbReg.popupConn:Disconnect() end); _kbReg.popupConn = nil end
+            if _kbReg.popup then
+                local p = _kbReg.popup
+                _kbReg.popup = nil
+                pcall(function()
+                    af:Create(p, TweenInfo.new(0.12), {BackgroundTransparency = 1}):Play()
+                    for _, ch in ipairs(p:GetDescendants()) do
+                        if ch:IsA("TextLabel") or ch:IsA("TextButton") then
+                            af:Create(ch, TweenInfo.new(0.12), {TextTransparency = 1}):Play()
+                        end
+                        if ch:IsA("Frame") then
+                            af:Create(ch, TweenInfo.new(0.12), {BackgroundTransparency = 1}):Play()
+                        end
+                        if ch:IsA("UIStroke") then
+                            af:Create(ch, TweenInfo.new(0.12), {Transparency = 1}):Play()
+                        end
+                    end
+                end)
+                task.delay(0.18, function() pcall(function() p:Destroy() end) end)
+            end
+        end
+
+        local function _openKeybindPopup(toggleObj, toggleTitle)
+            _closePopup()
+            -- Acha um Parent valido (a tela do hub)
+            local hubGui = ag.GUI or ag:FindFirstChildOfClass("ScreenGui")
+            if not hubGui then
+                -- Fallback: procurar o ScreenGui do Fluent na CoreGui
+                local cgui = game:GetService("CoreGui")
+                for _, c in ipairs(cgui:GetChildren()) do
+                    if c:IsA("ScreenGui") and c:FindFirstChild("Holder") then hubGui = c; break end
+                end
+                if not hubGui and gethui then
+                    local hui = gethui()
+                    if hui then
+                        for _, c in ipairs(hui:GetChildren()) do
+                            if c:IsA("ScreenGui") then hubGui = c; break end
+                        end
+                    end
+                end
+            end
+            if not hubGui then return end
+
+            -- Backdrop
+            local backdrop = Instance.new("Frame")
+            backdrop.Name = "_KeybindPopupBackdrop"
+            backdrop.Size = UDim2.new(1, 0, 1, 0)
+            backdrop.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+            backdrop.BackgroundTransparency = 1
+            backdrop.BorderSizePixel = 0
+            backdrop.ZIndex = 100
+            backdrop.Parent = hubGui
+
+            -- Popup
+            local popup = Instance.new("Frame")
+            popup.Size = UDim2.fromOffset(280, 160)
+            popup.AnchorPoint = Vector2.new(0.5, 0.5)
+            popup.Position = UDim2.fromScale(0.5, 0.5)
+            popup.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+            popup.BackgroundTransparency = 0.05
+            popup.BorderSizePixel = 0
+            popup.ZIndex = 101
+            popup.Parent = backdrop
+
+            local corner = Instance.new("UICorner")
+            corner.CornerRadius = UDim.new(0, 10)
+            corner.Parent = popup
+
+            local stroke = Instance.new("UIStroke")
+            stroke.Thickness = 1.5
+            stroke.Color = Color3.fromRGB(255, 255, 255)
+            stroke.Transparency = 0.5
+            stroke.Parent = popup
+
+            -- Top accent bar
+            local accentBar = Instance.new("Frame")
+            accentBar.Size = UDim2.new(1, 0, 0, 2)
+            accentBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            accentBar.BackgroundTransparency = 0.3
+            accentBar.BorderSizePixel = 0
+            accentBar.ZIndex = 102
+            accentBar.Parent = popup
+
+            -- Title
+            local title = Instance.new("TextLabel")
+            title.Size = UDim2.new(1, -16, 0, 20)
+            title.Position = UDim2.fromOffset(8, 10)
+            title.BackgroundTransparency = 1
+            title.Text = "Keybind: " .. tostring(toggleTitle)
+            title.TextColor3 = Color3.fromRGB(255, 255, 255)
+            title.Font = Enum.Font.GothamBold
+            title.TextSize = 13
+            title.TextXAlignment = Enum.TextXAlignment.Center
+            title.ZIndex = 102
+            title.Parent = popup
+
+            -- Subtitle
+            local sub = Instance.new("TextLabel")
+            sub.Size = UDim2.new(1, -16, 0, 16)
+            sub.Position = UDim2.fromOffset(8, 32)
+            sub.BackgroundTransparency = 1
+            sub.Text = "Aperte uma tecla pra bindar"
+            sub.TextColor3 = Color3.fromRGB(170, 170, 170)
+            sub.Font = Enum.Font.Gotham
+            sub.TextSize = 11
+            sub.TextXAlignment = Enum.TextXAlignment.Center
+            sub.ZIndex = 102
+            sub.Parent = popup
+
+            -- Current bind label
+            local currentKey = nil
+            for k, v in pairs(_kbReg.bindings) do
+                if v.toggle == toggleObj then currentKey = k; break end
+            end
+            local currentLbl = Instance.new("TextLabel")
+            currentLbl.Size = UDim2.new(1, -16, 0, 18)
+            currentLbl.Position = UDim2.fromOffset(8, 54)
+            currentLbl.BackgroundTransparency = 1
+            currentLbl.Text = currentKey and ("Atual: [" .. currentKey.Name .. "]") or "Nenhuma keybind ativa"
+            currentLbl.TextColor3 = currentKey and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(120, 120, 120)
+            currentLbl.Font = Enum.Font.GothamBold
+            currentLbl.TextSize = 12
+            currentLbl.TextXAlignment = Enum.TextXAlignment.Center
+            currentLbl.ZIndex = 102
+            currentLbl.Parent = popup
+
+            -- Botao Remover
+            local removeBtn = Instance.new("TextButton")
+            removeBtn.Size = UDim2.new(0.5, -12, 0, 30)
+            removeBtn.Position = UDim2.fromOffset(8, 84)
+            removeBtn.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+            removeBtn.BackgroundTransparency = 0.15
+            removeBtn.Text = "Remover Bind"
+            removeBtn.TextColor3 = Color3.fromRGB(220, 220, 220)
+            removeBtn.Font = Enum.Font.GothamBold
+            removeBtn.TextSize = 11
+            removeBtn.AutoButtonColor = false
+            removeBtn.ZIndex = 102
+            removeBtn.Parent = popup
+            local rbCorner = Instance.new("UICorner"); rbCorner.CornerRadius = UDim.new(0, 6); rbCorner.Parent = removeBtn
+            local rbStroke = Instance.new("UIStroke"); rbStroke.Thickness = 1; rbStroke.Color = Color3.fromRGB(80, 80, 80); rbStroke.Transparency = 0.4; rbStroke.Parent = removeBtn
+
+            -- Botao Cancelar
+            local cancelBtn = Instance.new("TextButton")
+            cancelBtn.Size = UDim2.new(0.5, -12, 0, 30)
+            cancelBtn.Position = UDim2.new(0.5, 4, 0, 84)
+            cancelBtn.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+            cancelBtn.BackgroundTransparency = 0.15
+            cancelBtn.Text = "Cancelar"
+            cancelBtn.TextColor3 = Color3.fromRGB(220, 220, 220)
+            cancelBtn.Font = Enum.Font.GothamBold
+            cancelBtn.TextSize = 11
+            cancelBtn.AutoButtonColor = false
+            cancelBtn.ZIndex = 102
+            cancelBtn.Parent = popup
+            local cbCorner = Instance.new("UICorner"); cbCorner.CornerRadius = UDim.new(0, 6); cbCorner.Parent = cancelBtn
+            local cbStroke = Instance.new("UIStroke"); cbStroke.Thickness = 1; cbStroke.Color = Color3.fromRGB(80, 80, 80); cbStroke.Transparency = 0.4; cbStroke.Parent = cancelBtn
+
+            -- Tip footer
+            local tip = Instance.new("TextLabel")
+            tip.Size = UDim2.new(1, -16, 0, 14)
+            tip.Position = UDim2.fromOffset(8, 122)
+            tip.BackgroundTransparency = 1
+            tip.Text = "Esc/Backspace cancela"
+            tip.TextColor3 = Color3.fromRGB(110, 110, 110)
+            tip.Font = Enum.Font.Gotham
+            tip.TextSize = 10
+            tip.TextXAlignment = Enum.TextXAlignment.Center
+            tip.ZIndex = 102
+            tip.Parent = popup
+
+            -- Hover effects
+            removeBtn.MouseEnter:Connect(function() af:Create(removeBtn, TweenInfo.new(0.1), {BackgroundTransparency = 0.05}):Play() end)
+            removeBtn.MouseLeave:Connect(function() af:Create(removeBtn, TweenInfo.new(0.1), {BackgroundTransparency = 0.15}):Play() end)
+            cancelBtn.MouseEnter:Connect(function() af:Create(cancelBtn, TweenInfo.new(0.1), {BackgroundTransparency = 0.05}):Play() end)
+            cancelBtn.MouseLeave:Connect(function() af:Create(cancelBtn, TweenInfo.new(0.1), {BackgroundTransparency = 0.15}):Play() end)
+
+            _kbReg.popup = backdrop
+
+            -- Close handlers
+            removeBtn.MouseButton1Click:Connect(function()
+                if currentKey then
+                    _kbReg.bindings[currentKey] = nil
+                end
+                _closePopup()
+            end)
+            cancelBtn.MouseButton1Click:Connect(function() _closePopup() end)
+
+            -- Animacao de entrada
+            backdrop.BackgroundTransparency = 1
+            af:Create(backdrop, TweenInfo.new(0.12), {BackgroundTransparency = 0.5}):Play()
+            popup.Size = UDim2.fromOffset(0, 0)
+            af:Create(popup, TweenInfo.new(0.18, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = UDim2.fromOffset(280, 160)}):Play()
+
+            -- Listener de input pra capturar a keybind
+            _kbReg.popupConn = _UIS_TG.InputBegan:Connect(function(input, gp)
+                if input.UserInputType ~= Enum.UserInputType.Keyboard then return end
+                local key = input.KeyCode
+                if key == Enum.KeyCode.Escape or key == Enum.KeyCode.Backspace then
+                    _closePopup()
+                    return
+                end
+                -- Se essa key ja tava bindada em outro toggle, remove
+                if _kbReg.bindings[key] then _kbReg.bindings[key] = nil end
+                -- Remove keybind anterior desse toggle
+                for k, v in pairs(_kbReg.bindings) do
+                    if v.toggle == toggleObj then _kbReg.bindings[k] = nil end
+                end
+                -- Adiciona nova keybind
+                _kbReg.bindings[key] = {toggle = toggleObj, label = toggleTitle}
+                _closePopup()
+            end)
+
+            -- Auto-close depois de 10s
+            task.delay(10, function()
+                if _kbReg.popup == backdrop then _closePopup() end
+            end)
+        end
+
+        -- Expor pro toggle usar
+        c._OpenKeybindPopup = _openKeybindPopup
+
         function c.New(d, e, f)
             local g = d.Library
             assert(f.Title, "Toggle - Missing Title")
@@ -4642,12 +4892,43 @@ local aa = {
                 i:Destroy()
                 g.Options[e] = nil
             end
+            -- ===== Click handler com deteccao de duplo clique =====
+            local _lastClickTime = 0
+            local _DOUBLE_CLICK_WINDOW = 0.4
             ah.AddSignal(
                 i.Frame.MouseButton1Click,
                 function()
-                    h:SetValue(not h.Value)
+                    local now = tick()
+                    if (now - _lastClickTime) < _DOUBLE_CLICK_WINDOW then
+                        -- Duplo clique: abre popup de keybind
+                        _lastClickTime = 0
+                        c._OpenKeybindPopup(h, f.Title)
+                    else
+                        _lastClickTime = now
+                        h:SetValue(not h.Value)
+                    end
                 end
             )
+
+            -- ===== Botao direito = mesmo popup de keybind =====
+            ah.AddSignal(
+                i.Frame.MouseButton2Click,
+                function()
+                    c._OpenKeybindPopup(h, f.Title)
+                end
+            )
+
+            -- Em Destroy, limpa keybind se houver
+            local _origDestroy = h.Destroy
+            function h.Destroy(m)
+                if _G.__FluentToggleKeybinds then
+                    for k, v in pairs(_G.__FluentToggleKeybinds.bindings) do
+                        if v.toggle == h then _G.__FluentToggleKeybinds.bindings[k] = nil end
+                    end
+                end
+                _origDestroy(m)
+            end
+
             h:SetValue(h.Value)
             g.Options[e] = h
             return h
